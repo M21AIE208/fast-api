@@ -1,21 +1,34 @@
 from flask import Flask, request, jsonify
 import pickle
+from utils import create_classifer
+
 app = Flask(__name__) # Initialize Flask app
 
-with open("./models/iris_classifier.pkl", "rb") as fileobj:
-    iris_model = pickle.load(fileobj) # Load the pre-trained model
 @app.route("/", methods=["GET"])
 def home():
     return "Welcome to the Ajay's Flask App!"
 
-@app.route("/get_square", methods=["POST"]) #<-- this is the controller
+@app.route("/training", methods=["POST"]) #<-- this is the controller
 def get_square(): # <-- this is view function
-    data = request.get_json()
-    number = data.get("number")
-    return jsonify({"square": number ** 2})
+    params = request.get_json()
+    create_classifer(**params) # Call the function to create and train the classifier
+
+    return jsonify({"msg":"Model trained and saved successfully!"})
+
+@app.route("/get_model_params", methods=["GET"])
+def get_model_params():
+    """
+    This function returns the parameters of the trained model.
+    """
+    with open("./models/my_model.pkl", "rb") as fileobj:
+        iris_model = pickle.load(fileobj)  # Load the pre-trained model
+    params = iris_model.get_params()
+    return jsonify(params)
 
 @app.route("/predict", methods=["POST"]) #<-- this is the controller
 def iris_prediction(): # <-- this is view function
+    with open("./models/my_model.pkl", "rb") as fileobj:
+        iris_model = pickle.load(fileobj)  # Load the pre-trained model
     data = request.get_json()
     sepal_lenght = data.get("sl")
     petal_lenght = data.get("pl")
