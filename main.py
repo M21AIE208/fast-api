@@ -39,4 +39,4 @@ def iris_prediction(): # <-- this is view function
 
 
 if __name__ == "__main__":
-    app.run()  # Run the app in debug mode
+    app.run(port=5000)  # Run the app in debug mode
